@@ -4,6 +4,7 @@ const score = z.number().int().min(0).max(100);
 
 export const websiteReviewRequestSchema = z.object({
   url: z.string().trim().min(1).max(2048),
+  force: z.boolean().optional().default(false),
 });
 
 export const websiteReviewResponseSchema = z.object({

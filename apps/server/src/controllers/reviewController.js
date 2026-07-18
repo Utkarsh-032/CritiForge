@@ -7,7 +7,7 @@ export async function websiteReview(request, response) {
   const parsedRequest = websiteReviewRequestSchema.safeParse(request.body);
   if (!parsedRequest.success) return response.status(400).json({ error: "A valid website URL of at most 2048 characters is required." });
   try {
-    return response.status(200).json(await createWebsiteReview(parsedRequest.data.url));
+    return response.status(200).json(await createWebsiteReview(parsedRequest.data.url, parsedRequest.data.force));
   } catch (error) {
     if (error instanceof WebsiteReviewServiceError) {
       const responses = {

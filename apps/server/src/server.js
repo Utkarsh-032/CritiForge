@@ -6,6 +6,7 @@ import { assertGroqConfiguration, getGroqConfigurationStatus, groqModel } from "
 import { getGeminiConfigurationStatus } from "../services/geminiClient.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import mentorRoutes from "./routes/mentorRoutes.js";
+import { closeWebsiteBrowser } from "../services/websiteCollector.js";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -76,7 +77,7 @@ const server = app.listen(port, host, () => console.log(`CritiForge API listenin
 
 function shutdown(signal) {
   console.log(`${signal} received; closing CritiForge API.`);
-  server.close(() => process.exit(0));
+  closeWebsiteBrowser().finally(() => server.close(() => process.exit(0)));
   setTimeout(() => process.exit(1), 10_000).unref();
 }
 

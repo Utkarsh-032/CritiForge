@@ -6,7 +6,7 @@ const api = axios.create({
   timeout: 90_000,
 });
 
-export const reviewWebsite = (url) => api.post("/reviews/website", { url });
+export const reviewWebsite = (url, force = false) => api.post("/reviews/website", { url, force });
 export const reviewCode = (language, code) => api.post("/reviews/code", { language, code });
 export const askMentor = (question, context) => api.post("/mentor", { question, context });
 

@@ -9,7 +9,7 @@ import EmptyState from "../components/reports/EmptyState";
 import { reviewWebsite } from "../services/api";
 import { saveReviewHistory } from "../services/reviewHistory";
 
-const loadingMessages = ["Preparing website analysis", "Collecting page evidence", "Waiting for the visual review", "Building the report"];
+const loadingMessages = ["Opening website", "Reading page structure", "Capturing visual preview", "Running AI analysis", "Building report"];
 
 export default function WebsiteReview() {
   const [url, setUrl] = useState("");
@@ -17,14 +17,16 @@ export default function WebsiteReview() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
     if (!loading) return undefined;
     const interval = setInterval(() => setLoadingMessageIndex((index) => (index + 1) % loadingMessages.length), 2200);
-    return () => clearInterval(interval);
+    const timer = setInterval(() => setElapsed((value) => value + 1), 1000);
+    return () => { clearInterval(interval); clearInterval(timer); };
   }, [loading]);
 
-  async function submitWebsiteReview() {
+  async function submitWebsiteReview(force = false) {
     const normalizedUrl = url.trim();
     if (!normalizedUrl) {
       setError("Enter a website URL, including http:// or https://.");
@@ -41,11 +43,12 @@ export default function WebsiteReview() {
 
     setError("");
     setLoadingMessageIndex(0);
+    setElapsed(0);
     setLoading(true);
     setReport(null);
 
     try {
-      const { data } = await reviewWebsite(normalizedUrl);
+      const { data } = await reviewWebsite(normalizedUrl, force);
       const domain = new URL(data.analyzedUrl || normalizedUrl).hostname;
       saveReviewHistory({ type: "website", title: domain || "Website Review", summary: data.summary || "Website review completed.", score: data.overallScore, route: "/website-review", metadata: { domain } });
       setReport(data);
@@ -81,8 +84,9 @@ export default function WebsiteReview() {
 
         <ErrorMessage message={error} />
         {loading && <LoadingState label={`${loadingMessages[loadingMessageIndex]} — website reviews collect page evidence and a screenshot, so they can take a little longer.`} />}
+        {loading && <p className="text-sm text-slate-400" aria-live="polite">Elapsed time: {elapsed}s{elapsed >= 15 ? " — This review is taking longer than usual. Complex websites or a waking server may take 20–40 seconds." : ""}</p>}
         {!loading && !report && !error && <EmptyState title="See your website through a sharper lens" description="Review UI, UX, accessibility, content, responsiveness, and performance readiness from a public URL." hint="Try https://example.com to see the flow." />}
-        {report && <WebsiteReviewReport report={report} />}
+        {report && <><WebsiteReviewReport report={report} />{report.cached && <button type="button" onClick={() => submitWebsiteReview(true)} className="rounded-xl border border-violet-400/30 px-4 py-2 text-sm font-semibold text-violet-100 hover:bg-violet-400/10">Force Reanalyze</button>}</>}
       </div>
     </DashboardLayout>
   );
