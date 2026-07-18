@@ -1,0 +1,3 @@
+export default function CritiForgeLogo({ compact = false, className = "" }) {
+  return <span className={`inline-flex items-center gap-2.5 ${className}`} aria-label="CritiForge"><svg viewBox="0 0 40 40" className="size-10 shrink-0" role="img" aria-label="CritiForge precision forge mark"><path d="M20 3 25 15l12 5-12 5-5 12-5-12L3 20l12-5 5-12Z" fill="#8B5CF6"/><path d="m20 10 2.6 7.4L30 20l-7.4 2.6L20 30l-2.6-7.4L10 20l7.4-2.6L20 10Z" fill="#050507"/><path d="m24 8 1.7 4.3L30 14l-4.3 1.7L24 20l-1.7-4.3L18 14l4.3-1.7L24 8Z" fill="#22D3EE"/></svg>{!compact && <span className="text-xl font-semibold tracking-tight text-white">Criti<span className="text-violet-400">Forge</span></span>}</span>;
+}

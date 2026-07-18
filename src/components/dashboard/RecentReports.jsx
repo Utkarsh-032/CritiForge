@@ -33,12 +33,12 @@ export default function RecentReports() {
         <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Latest review snapshots</h2>
       </div>
 
-      <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-4 shadow-[0_20px_80px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:p-5">
+      <div className="rounded-[28px] border border-white/10 bg-[#121b2e] p-4 shadow-[0_16px_48px_rgba(0,0,0,0.2)] sm:p-5">
         <div className="space-y-4">
           {reports.map((report) => (
             <article
               key={report.title}
-              className="rounded-2xl border border-white/10 bg-[#0F172A]/70 p-4 transition-all duration-300 hover:border-violet-400/25 hover:bg-[#101A31]/90"
+              className="rounded-2xl border border-white/10 bg-[#0F172A] p-4 transition-[border-color,background-color] duration-200 hover:border-violet-400/25 hover:bg-[#101A31]"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>

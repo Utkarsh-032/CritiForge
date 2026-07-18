@@ -9,13 +9,11 @@ import WebsiteReview from "./pages/WebsiteReview";
 export default function App() {
   return (
     <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/website-review" element={<WebsiteReview />} />
-        <Route path="/code-review" element={<CodeReview />} />
-        <Route path="/ai-mentor" element={<Mentor />} />
-      </Route>
+      <Route element={<Layout />}><Route path="/" element={<Home />} /></Route>
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/website-review" element={<WebsiteReview />} />
+      <Route path="/code-review" element={<CodeReview />} />
+      <Route path="/ai-mentor" element={<Mentor />} />
     </Routes>
   );
 }

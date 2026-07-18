@@ -44,14 +44,14 @@ export default function QuickActions() {
           <Link
             key={title}
             to={to}
-            className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.25)] transition-all duration-300 hover:-translate-y-1 hover:border-violet-400/30 hover:bg-white/[0.06] hover:shadow-violet-950/25"
+            className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#121b2e] p-5 shadow-[0_12px_32px_rgba(0,0,0,0.18)] transition-[transform,border-color,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:border-violet-400/30 hover:shadow-lg hover:shadow-violet-950/25"
           >
-            <div className={`absolute inset-0 bg-gradient-to-br ${accent} opacity-100 transition-opacity duration-300 group-hover:opacity-100`} />
+            <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${accent} opacity-70 transition-opacity duration-200 group-hover:opacity-100`} />
             <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/5" />
 
             <div className="relative flex h-full flex-col gap-5">
               <div className="flex items-start justify-between gap-4">
-                <div className="grid size-12 place-items-center rounded-2xl border border-white/10 bg-[#0F172A]/80 text-white shadow-lg shadow-black/20 transition-transform duration-300 group-hover:scale-105">
+                <div className="grid size-12 place-items-center rounded-2xl border border-white/10 bg-[#0F172A] text-white shadow-lg shadow-black/20 transition-transform duration-200 group-hover:scale-105">
                   <Icon size={22} strokeWidth={1.8} className="text-white" />
                 </div>
                 <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ${badgeClass}`}>{badge}</span>
@@ -64,7 +64,7 @@ export default function QuickActions() {
 
               <div className="mt-auto flex items-center justify-between pt-3 text-sm font-medium text-slate-200">
                 <span>Open action</span>
-                <span className="inline-flex items-center gap-1 text-violet-200 transition-transform duration-300 group-hover:translate-x-0.5">
+                <span className="inline-flex items-center gap-1 text-violet-200 transition-transform duration-200 group-hover:translate-x-0.5">
                   Open Tool
                   <ArrowUpRight size={16} />
                 </span>

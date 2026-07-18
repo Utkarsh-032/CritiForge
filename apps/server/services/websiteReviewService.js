@@ -1,10 +1,7 @@
-import { APIConnectionError, APIConnectionTimeoutError, APIError, AuthenticationError, NotFoundError, PermissionDeniedError, RateLimitError } from "groq-sdk";
-import { getGroqClient } from "./groqClient.js";
+import { assertGeminiConfiguration, generateGeminiContent } from "./geminiClient.js";
 import { collectWebsiteEvidence, WebsiteCollectorError } from "./websiteCollector.js";
 import { buildWebsiteEvidenceInput, websiteReviewInstructions } from "../prompts/websiteReviewPrompt.js";
 import { websiteReviewResponseSchema } from "../schemas/websiteReviewSchema.js";
-
-const visionModel = process.env.GROQ_VISION_MODEL?.trim();
 
 export class WebsiteReviewServiceError extends Error {
   constructor(kind) { super(kind); this.kind = kind; }
@@ -19,32 +16,25 @@ function parseWebsiteReview(content, analyzedUrl) {
 }
 
 export async function createWebsiteReview(url) {
-  let client;
-  try { client = getGroqClient(); } catch { throw new WebsiteReviewServiceError("configuration"); }
-  if (!visionModel) throw new WebsiteReviewServiceError("model-unavailable");
+  try { assertGeminiConfiguration(); } catch { throw new WebsiteReviewServiceError("configuration"); }
 
   let collected;
   try { collected = await collectWebsiteEvidence(url); } catch (error) { if (error instanceof WebsiteCollectorError) throw new WebsiteReviewServiceError(error.kind); throw new WebsiteReviewServiceError("unreachable"); }
 
   try {
-    const response = await client.chat.completions.create({
-      model: visionModel,
-      messages: [{ role: "system", content: websiteReviewInstructions }, { role: "user", content: [{ type: "text", text: buildWebsiteEvidenceInput(collected.evidence) }, { type: "image_url", image_url: { url: `data:image/jpeg;base64,${collected.screenshotBase64}` } }] }],
-      response_format: { type: "json_object" },
-      temperature: 0.2,
-    });
-    const review = parseWebsiteReview(response.choices[0]?.message?.content, collected.evidence.finalUrl);
+    const response = await generateGeminiContent({ systemInstruction: websiteReviewInstructions, prompt: buildWebsiteEvidenceInput(collected.evidence), screenshotBase64: collected.screenshotBase64 });
+    const review = parseWebsiteReview(response, collected.evidence.finalUrl);
     if (review) return review;
-    const correction = await client.chat.completions.create({ model: visionModel, messages: [{ role: "system", content: "Return only corrected JSON that exactly follows the CritiForge website review structure. Do not add markdown or commentary." }, { role: "user", content: `Correct this invalid website review JSON. Use source "groq", reviewType "website", and analyzedUrl "${collected.evidence.finalUrl}":\n${response.choices[0]?.message?.content || "No response content was returned."}` }], response_format: { type: "json_object" }, temperature: 0 });
-    const corrected = parseWebsiteReview(correction.choices[0]?.message?.content, collected.evidence.finalUrl);
+    const correction = await generateGeminiContent({ systemInstruction: "Return only corrected JSON that exactly follows the CritiForge website review structure. Do not add markdown or commentary.", prompt: `Correct this invalid website review JSON. Use source "gemini", reviewType "website", and analyzedUrl "${collected.evidence.finalUrl}":\n${response}` });
+    const corrected = parseWebsiteReview(correction, collected.evidence.finalUrl);
     if (!corrected) throw new WebsiteReviewServiceError("malformed-response");
     return corrected;
   } catch (error) {
     if (error instanceof WebsiteReviewServiceError) throw error;
-    if (error instanceof RateLimitError || error?.status === 429) throw new WebsiteReviewServiceError("rate-limit");
-    if (error instanceof AuthenticationError || error instanceof PermissionDeniedError || error?.status === 401 || error?.status === 403) throw new WebsiteReviewServiceError("authentication");
-    if (error instanceof NotFoundError || error?.status === 404) throw new WebsiteReviewServiceError("model-unavailable");
-    if (error instanceof APIConnectionTimeoutError || error instanceof APIConnectionError || error instanceof APIError) throw new WebsiteReviewServiceError("upstream");
+    if (error?.status === 429) throw new WebsiteReviewServiceError("rate-limit");
+    if (error?.status === 401 || error?.status === 403) throw new WebsiteReviewServiceError("authentication");
+    if (error?.status === 404 || error?.status === 400) throw new WebsiteReviewServiceError("vision_model_unavailable");
+    if (error?.name === "TimeoutError" || error instanceof TypeError || error?.status >= 500) throw new WebsiteReviewServiceError("upstream");
     throw new WebsiteReviewServiceError("unexpected");
   }
 }

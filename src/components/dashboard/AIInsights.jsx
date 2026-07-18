@@ -49,12 +49,12 @@ export default function AIInsights() {
         <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">High-signal recommendations</h2>
       </div>
 
-      <div className="rounded-[30px] border border-white/10 bg-white/5 p-5 shadow-[0_25px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:p-6">
+      <div className="rounded-[30px] border border-white/10 bg-[#121b2e] p-5 shadow-[0_16px_48px_rgba(0,0,0,0.2)] sm:p-6">
         <div className="grid gap-4 lg:grid-cols-2">
           {sections.map((section) => (
             <article
               key={section.label}
-              className="rounded-2xl border border-white/10 bg-[#0F172A]/65 p-4 transition-colors duration-300 hover:border-violet-400/20 hover:bg-[#101A31]/80"
+              className="rounded-2xl border border-white/10 bg-[#0F172A] p-4 transition-[border-color,background-color] duration-200 hover:border-violet-400/20 hover:bg-[#101A31]"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-base font-semibold text-white">{section.label}</h3>

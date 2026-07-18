@@ -18,3 +18,10 @@ export function getGroqClient() {
   assertGroqApiKey();
   return groq;
 }
+
+export function getGroqConfigurationStatus() {
+  return {
+    groqConfigured: Boolean(apiKey),
+    groqModel: groqModel || null,
+  };
+}

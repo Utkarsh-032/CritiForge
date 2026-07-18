@@ -7,7 +7,7 @@ export const websiteReviewRequestSchema = z.object({
 });
 
 export const websiteReviewResponseSchema = z.object({
-  source: z.literal("groq"),
+  source: z.literal("gemini"),
   reviewType: z.literal("website"),
   analyzedUrl: z.string().url(),
   summary: z.string().min(1),

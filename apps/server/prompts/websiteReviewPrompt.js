@@ -6,7 +6,7 @@ Do not claim Lighthouse was executed, Core Web Vitals were measured, complete WC
 
 Return only JSON with this exact shape:
 {
-  "source": "groq",
+  "source": "gemini",
   "reviewType": "website",
   "analyzedUrl": "string",
   "summary": "string",
@@ -20,5 +20,5 @@ Return only JSON with this exact shape:
 All scores must be integers from 0 to 100. Use empty arrays when no meaningful findings exist.`;
 
 export function buildWebsiteEvidenceInput(evidence) {
-  return `Review this website evidence. Set source to "groq", reviewType to "website", and analyzedUrl to "${evidence.finalUrl}".\n\n${JSON.stringify(evidence)}`;
+  return `Review this website evidence. Set source to "gemini", reviewType to "website", and analyzedUrl to "${evidence.finalUrl}".\n\n${JSON.stringify(evidence)}`;
 }

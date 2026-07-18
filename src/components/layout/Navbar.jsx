@@ -1,6 +1,7 @@
-import { Menu, Sparkles, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import CritiForgeLogo from "../brand/CritiForgeLogo";
 
 const navigation = [
   { label: "Home", to: "/", end: true },
@@ -27,10 +28,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B1120]/95 backdrop-blur-xl" style={{ backgroundColor: "rgba(11, 17, 32, 0.95)" }}>
       <nav className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
         <NavLink to="/" end className="group flex items-center gap-2.5" aria-label="CritiForge home" onClick={closeMenu}>
-          <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 text-white shadow-lg shadow-violet-500/25 transition-transform duration-200 group-hover:scale-105">
-            <Sparkles size={18} strokeWidth={2.5} />
-          </span>
-          <span className="text-lg font-semibold tracking-tight text-white">Criti<span className="text-violet-400">Forge</span></span>
+          <CritiForgeLogo className="transition-transform duration-150 group-hover:scale-[1.02]" />
         </NavLink>
 
         <div className="hidden items-center gap-1 lg:flex">

@@ -1,23 +1,27 @@
+import { Bot, Code2, Globe2, Search, Sparkles, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import DashboardLayout from "../components/dashboard/DashboardLayout";
-import AIInsights from "../components/dashboard/AIInsights";
-import QuickActions from "../components/dashboard/QuickActions";
-import RecentReports from "../components/dashboard/RecentReports";
+import { clearReviewHistory, getReviewHistory } from "../services/reviewHistory";
+
+const labels = { website: "Website", code: "Code", mentor: "Mentor" };
+const starters = [
+  { title: "Review a Website", description: "Inspect visual design, accessibility, UX, content, and performance readiness.", to: "/website-review", action: "Start Website Review", icon: Globe2 },
+  { title: "Analyze Code", description: "Review HTML, CSS, or JavaScript for quality, security, and maintainability.", to: "/code-review", action: "Start Code Review", icon: Code2 },
+  { title: "Ask AI Mentor", description: "Get structured explanations, better approaches, examples, and learning guidance.", to: "/ai-mentor", action: "Ask the Mentor", icon: Bot },
+];
 
 export default function Dashboard() {
-  return (
-    <DashboardLayout title="Dashboard">
-      <div className="space-y-8">
-        <QuickActions />
-
-        <div className="grid gap-8 xl:grid-cols-5">
-          <div className="xl:col-span-2">
-            <RecentReports />
-          </div>
-          <div className="xl:col-span-3">
-            <AIInsights />
-          </div>
-        </div>
-      </div>
-    </DashboardLayout>
-  );
+  const [history, setHistory] = useState(getReviewHistory);
+  const [query, setQuery] = useState("");
+  const [type, setType] = useState("all");
+  const [sort, setSort] = useState("newest");
+  const isEmpty = history.length === 0;
+  const filtered = useMemo(() => history.filter((item) => (type === "all" || item.type === type) && `${item.title} ${item.summary} ${item.type}`.toLowerCase().includes(query.toLowerCase())).sort((a, b) => sort === "oldest" ? a.createdAt.localeCompare(b.createdAt) : sort === "score" ? (b.score ?? -1) - (a.score ?? -1) : b.createdAt.localeCompare(a.createdAt)), [history, query, type, sort]);
+  const scored = history.filter((item) => Number.isFinite(item.score));
+  const metrics = [
+    ["Total Reviews", history.length, "Your completed analyses"], ["Website Reviews", history.filter((x) => x.type === "website").length, "Website assessments"], ["Code Reviews", history.filter((x) => x.type === "code").length, "Code-quality reports"], ["Mentor Sessions", history.filter((x) => x.type === "mentor").length, "Learning sessions"], ["Average Score", scored.length ? `${Math.round(scored.reduce((sum, x) => sum + x.score, 0) / scored.length)}/100` : "No scores yet", "Based on scored reviews"],
+  ];
+  const reset = () => { if (window.confirm("Clear all locally saved review history?")) { clearReviewHistory(); setHistory([]); } };
+  return <DashboardLayout title="Dashboard"><div className="space-y-6"><div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-300">{isEmpty ? "Start your workspace" : "Workspace"}</p><h2 className="mt-2 text-2xl font-semibold text-white">{isEmpty ? "Your first improvement starts here" : "Review history"}</h2></div>{!isEmpty && <button type="button" onClick={reset} className="self-start rounded-lg border border-white/[0.1] px-3 py-2 text-sm text-slate-300 hover:bg-white/5">Clear History</button>}</div><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">{metrics.map(([label, value, helper]) => <article key={label} className="rounded-2xl border border-white/[0.08] bg-[#0D0D12] p-4"><p className="text-xs uppercase tracking-[0.14em] text-slate-500">{label}</p><p className={`mt-2 font-semibold text-white ${label === "Average Score" && !scored.length ? "text-base" : "text-2xl"}`}>{value}</p><p className="mt-1 text-xs text-slate-500">{helper}</p></article>)}</div>{isEmpty ? <section className="overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#0D0D12] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.25)] sm:p-8"><div className="relative text-center"><div aria-hidden="true" className="mx-auto grid size-20 place-items-center rounded-3xl border border-violet-400/25 bg-violet-500/10 text-violet-200 shadow-[0_0_40px_rgba(139,92,246,0.18)]"><Sparkles size={34}/></div><p className="mt-5 text-sm font-medium text-cyan-300">0 reviews completed</p><p className="mt-1 text-sm text-slate-400">Complete one analysis to activate your review history.</p></div><p className="mx-auto mt-6 max-w-2xl text-center text-sm leading-6 text-slate-400">Run a website review, analyze code, or ask the AI Mentor. CritiForge will organize every completed analysis in your workspace.</p><div className="mt-8 grid gap-4 md:grid-cols-3">{starters.map(({ title, description, to, action, icon: Icon }) => <article key={title} className="rounded-2xl border border-white/[0.08] bg-[#121218] p-5 text-left transition-[border-color,box-shadow] duration-200 hover:border-violet-400/40 hover:shadow-lg hover:shadow-violet-950/20"><Icon className="text-cyan-300" size={22}/><h3 className="mt-4 font-semibold text-white">{title}</h3><p className="mt-2 min-h-15 text-sm leading-6 text-slate-400">{description}</p><Link to={to} className="mt-5 inline-flex w-full justify-center rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300">{action}</Link></article>)}</div></section> : <section className="rounded-2xl border border-white/[0.08] bg-[#0D0D12] p-4 sm:p-5"><div className="flex flex-col gap-3 lg:flex-row lg:items-center"><label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/[0.08] bg-[#0A0A10] px-3 py-2.5"><Search size={17} className="text-slate-500"/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search workspace" className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-500"/>{query && <button type="button" aria-label="Clear search" onClick={() => setQuery("")}><X size={16}/></button>}</label><div className="flex gap-2 overflow-x-auto">{["all", "website", "code", "mentor"].map((value) => <button key={value} type="button" onClick={() => setType(value)} className={`rounded-lg px-3 py-2 text-sm capitalize ${type === value ? "bg-violet-500 text-white" : "bg-white/5 text-slate-300"}`}>{value === "all" ? "All" : labels[value]}</button>)}<select value={sort} onChange={(event) => setSort(event.target.value)} className="rounded-lg border border-white/[0.08] bg-[#0A0A10] px-3 text-sm text-slate-200"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="score">Highest Score</option></select></div></div><div className="mt-5 space-y-3">{filtered.length ? filtered.map((item) => <Link key={item.id} to={item.route} className="block rounded-xl border border-white/[0.08] bg-[#121218] p-4 transition-colors hover:border-violet-400/40"><div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><p className="font-medium text-white">{item.title}</p><p className="mt-1 line-clamp-2 break-words text-sm text-slate-400">{item.summary}</p></div><div className="text-right text-sm"><span className="rounded-full bg-white/5 px-2 py-1 text-slate-300">{labels[item.type]}</span>{Number.isFinite(item.score) && <p className="mt-2 font-semibold text-cyan-300">{item.score}/100</p>}</div></div></Link>) : <div className="rounded-xl border border-white/[0.08] bg-[#121218] p-8 text-center text-sm text-slate-400">No matching reviews found. Try a different keyword or clear your filters.</div>}</div></section>}</div></DashboardLayout>;
 }
