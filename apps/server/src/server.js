@@ -9,7 +9,11 @@ import mentorRoutes from "./routes/mentorRoutes.js";
 
 const app = express();
 const port = process.env.PORT || 3001;
-const frontendOrigins = (process.env.FRONTEND_ORIGIN || "http://localhost:5173").split(",").map((origin) => origin.trim()).filter(Boolean);
+const host = "0.0.0.0";
+const isProduction = process.env.NODE_ENV === "production";
+const configuredOrigins = (process.env.FRONTEND_ORIGIN || "").split(",").map((origin) => origin.trim()).filter(Boolean);
+const developmentOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+const frontendOrigins = isProduction ? configuredOrigins : [...new Set([...configuredOrigins, ...developmentOrigins])];
 const aiRateLimit = rateLimit({
   windowMs: Number(process.env.AI_RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
   limit: Number(process.env.AI_RATE_LIMIT_MAX) || 30,
@@ -31,6 +35,7 @@ app.use((request, response, next) => {
   return next();
 });
 app.use(express.json({ limit: "256kb" }));
+app.get("/", (request, response) => response.json({ status: "ok", message: "CritiForge API is running", health: "/api/health" }));
 app.get("/api/health", (request, response) => response.json({ status: "ok", message: "CritiForge API is running" }));
 function sendAiStatus(request, response) {
   const configuration = getGroqConfigurationStatus();
@@ -67,4 +72,13 @@ app.use((error, request, response, next) => {
   return response.status(500).json({ error: "An unexpected server error occurred." });
 });
 
-app.listen(port, () => console.log(`CritiForge API listening on http://localhost:${port}`));
+const server = app.listen(port, host, () => console.log(`CritiForge API listening on ${host}:${port}`));
+
+function shutdown(signal) {
+  console.log(`${signal} received; closing CritiForge API.`);
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(1), 10_000).unref();
+}
+
+process.once("SIGTERM", () => shutdown("SIGTERM"));
+process.once("SIGINT", () => shutdown("SIGINT"));
