@@ -1,0 +1,12 @@
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api",
+  headers: { "Content-Type": "application/json" },
+});
+
+export const reviewWebsite = (url) => api.post("/reviews/website", { url });
+export const reviewCode = (language, code) => api.post("/reviews/code", { language, code });
+export const askMentor = (question, context) => api.post("/mentor", { question, context });
+
+export default api;
