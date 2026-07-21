@@ -6,7 +6,7 @@ import MentorReport from "../components/reports/MentorReport";
 import PageHeader from "../components/reports/PageHeader";
 import EmptyState from "../components/reports/EmptyState";
 import { askMentor, getApiErrorMessage } from "../services/api";
-import { saveReviewHistory } from "../services/reviewHistory";
+import { createHistoryEntry, saveReviewHistory } from "../services/reviewHistory";
 
 export default function Mentor() {
   const [question, setQuestion] = useState("");
@@ -28,7 +28,7 @@ export default function Mentor() {
 
     try {
       const { data } = await askMentor(question, context);
-      saveReviewHistory({ type: "mentor", title: data.topic || "AI Mentor Session", summary: data.summary || "Mentor guidance completed.", route: "/ai-mentor", metadata: { topic: data.topic || "" } });
+      saveReviewHistory(createHistoryEntry("mentor", { question, context }, data));
       setAnswer(data);
     } catch (requestError) {
       const status = requestError.response?.status;
