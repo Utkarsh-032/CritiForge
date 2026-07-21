@@ -147,7 +147,22 @@ Never expose API keys in frontend environment variables or commit real `.env` fi
 
 ## How Codex and GPT-5.6 Terra Were Used
 
-Codex was used throughout the project for architecture planning, implementation, debugging, refactoring, deployment preparation, performance improvements, and documentation. GPT-5.6 Terra/Codex-assisted work supported the iterative engineering process; I reviewed, tested, and understood the generated code and decisions before using them in the project.
+CritiForge was developed during OpenAI Build Week with Codex and GPT-5.6 Terra acting as an engineering collaborator throughout the development process.
+
+Codex helped with:
+
+- architecture planning and implementation
+- building and refining React components
+- creating the Website Review, Code Review, and AI Mentor workflows
+- debugging frontend and backend issues
+- improving responsive desktop and mobile navigation
+- resolving Render and Vercel deployment problems
+- strengthening error handling, security, and reliability
+- reviewing code and improving documentation
+
+I made the core product and technical decisions, including defining CritiForge's purpose, selecting its main features, choosing the technology stack, and deciding how reviews and dashboard history should work.
+
+I reviewed, tested, and understood Codex-generated changes before including them in the final project. The development process was iterative: I described the goal, Codex proposed or implemented changes, I tested the result, and then refined it through further feedback.
 
 ## Limitations
 
@@ -166,21 +181,20 @@ Codex was used throughout the project for architecture planning, implementation,
 
 ## Live Links
 
-- Live application: `[add Vercel URL]`
-- Backend health endpoint: `[add Render URL]/api/health`
-- Demo video: `[add video URL]`
-- Devpost submission: `[add Devpost URL]`
+- Live application: https://critiforge.vercel.app/
+- Backend health endpoint: https://critiforge.onrender.com/api/health
+- Demo video: https://youtube.com/watch?v=YOUR_VIDEO_ID
 
-## Screenshots
+## Testing the Live Application
 
-Replace these placeholders with your final screenshots before submission.
+The easiest way to test CritiForge is through the live Vercel deployment.
 
-```text
-docs/screenshots/dashboard.png
-docs/screenshots/website-review.png
-docs/screenshots/code-review.png
-docs/screenshots/ai-mentor.png
-```
+1. Open Website Review and enter `https://example.com`.
+2. Open Code Review and paste a JavaScript, HTML, or CSS example.
+3. Open AI Mentor and ask a software-development question.
+4. Open Dashboard to view the locally stored review history.
+
+Note: The Render backend may take a short time to wake up after inactivity.
 
 ## Verification
 
