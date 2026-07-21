@@ -99,7 +99,8 @@ async function fetchHtml(requestedUrl) {
     let response;
     try {
       response = await fetch(currentUrl, { redirect: "manual", signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS), headers: { "User-Agent": "CritiForgeWebsiteReview/1.0" } });
-    } catch {
+    } catch (error) {
+      if (error?.name === "TimeoutError") throw new WebsiteCollectorError("request-timeout");
       throw new WebsiteCollectorError("unreachable");
     }
 
@@ -186,6 +187,11 @@ async function captureScreenshot(finalUrl, onTiming) {
 export async function collectWebsiteEvidence(requestedUrl, onTiming) {
   const fetchStart = Date.now(); const { finalUrl, html } = await fetchHtml(requestedUrl); onTiming?.("html-fetch", Date.now() - fetchStart);
   const extractionStart = Date.now(); const evidence = collectEvidence(requestedUrl, finalUrl, html); onTiming?.("html-extraction", Date.now() - extractionStart);
-  const screenshotBase64 = await captureScreenshot(finalUrl, onTiming);
-  return { evidence, screenshotBase64 };
+  try {
+    const screenshotBase64 = await captureScreenshot(finalUrl, onTiming);
+    return { evidence, screenshotBase64, analysisMode: "visual-and-structure" };
+  } catch (error) {
+    onTiming?.("screenshot-fallback", 0, error.kind || "screenshot-failed");
+    return { evidence, screenshotBase64: null, analysisMode: "structure-only" };
+  }
 }

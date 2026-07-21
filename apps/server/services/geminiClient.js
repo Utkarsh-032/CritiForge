@@ -1,10 +1,7 @@
 import "../src/config/env.js";
 
 const apiKey = process.env.GEMINI_API_KEY?.trim();
-export const DEFAULT_GEMINI_VISION_MODEL = "gemini-3.5-flash";
-export const geminiVisionModel = process.env.GEMINI_VISION_MODEL === undefined
-  ? DEFAULT_GEMINI_VISION_MODEL
-  : process.env.GEMINI_VISION_MODEL.trim();
+export const geminiVisionModel = process.env.GEMINI_VISION_MODEL?.trim();
 
 export function assertGeminiConfiguration() {
   if (!apiKey) throw new Error("Gemini is not configured: GEMINI_API_KEY is missing.");
@@ -13,9 +10,8 @@ export function assertGeminiConfiguration() {
 
 export function getGeminiConfigurationStatus() {
   return {
-    geminiConfigured: Boolean(apiKey),
-    geminiVisionModelConfigured: Boolean(geminiVisionModel),
-    geminiVisionModel: geminiVisionModel || null,
+    configured: Boolean(apiKey),
+    modelConfigured: Boolean(geminiVisionModel),
   };
 }
 

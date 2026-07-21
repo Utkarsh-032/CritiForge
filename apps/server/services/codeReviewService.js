@@ -15,10 +15,10 @@ function parseReviewResponse(content, language) {
 
   try {
     const parsedReview = codeReviewResponseSchema.safeParse(JSON.parse(json));
-    if (!parsedReview.success || parsedReview.data.language !== language) return null;
-    return parsedReview.data;
+    if (!parsedReview.success || parsedReview.data.language !== language) return { data: null, kind: "validation" };
+    return { data: parsedReview.data, kind: null };
   } catch {
-    return null;
+    return { data: null, kind: "malformed-response" };
   }
 }
 
@@ -46,7 +46,7 @@ export async function createCodeReview(language, code) {
 
     const parsedReview = parseReviewResponse(response.choices[0]?.message?.content, language);
 
-    if (parsedReview) return parsedReview;
+    if (parsedReview.data) return parsedReview.data;
 
     const correction = await client.chat.completions.create({
       model: groqModel,
@@ -60,14 +60,15 @@ export async function createCodeReview(language, code) {
 
     const correctedReview = parseReviewResponse(correction.choices[0]?.message?.content, language);
 
-    if (!correctedReview) throw new CodeReviewServiceError("malformed-response");
-    return correctedReview;
+    if (!correctedReview.data) throw new CodeReviewServiceError(correctedReview.kind);
+    return correctedReview.data;
   } catch (error) {
     if (error instanceof CodeReviewServiceError) throw error;
     if (error instanceof RateLimitError || error?.status === 429) throw new CodeReviewServiceError("rate-limit");
     if (error instanceof AuthenticationError || error instanceof PermissionDeniedError || error?.status === 401 || error?.status === 403) throw new CodeReviewServiceError("authentication");
     if (error instanceof NotFoundError || error?.status === 404) throw new CodeReviewServiceError("model-unavailable");
-    if (error instanceof APIConnectionTimeoutError || error instanceof APIConnectionError || error instanceof APIError) throw new CodeReviewServiceError("upstream");
+    if (error instanceof APIConnectionTimeoutError) throw new CodeReviewServiceError("request-timeout");
+    if (error instanceof APIConnectionError || error instanceof APIError) throw new CodeReviewServiceError("upstream");
     throw new CodeReviewServiceError("unexpected");
   }
 }

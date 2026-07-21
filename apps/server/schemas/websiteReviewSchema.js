@@ -36,4 +36,6 @@ export const websiteReviewResponseSchema = z.object({
     description: z.string().min(1),
     expectedImpact: z.string().min(1),
   })),
+  analysisMode: z.enum(["visual-and-structure", "structure-only"]).optional(),
+  cached: z.boolean().optional(),
 });

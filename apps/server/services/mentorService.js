@@ -15,9 +15,9 @@ function parseMentorResponse(content) {
 
   try {
     const parsedResponse = mentorResponseSchema.safeParse(JSON.parse(json));
-    return parsedResponse.success ? parsedResponse.data : null;
+    return parsedResponse.success ? { data: parsedResponse.data, kind: null } : { data: null, kind: "validation" };
   } catch {
-    return null;
+    return { data: null, kind: "malformed-response" };
   }
 }
 
@@ -44,7 +44,7 @@ export async function createMentorResponse(question, context) {
     });
 
     const mentorResponse = parseMentorResponse(response.choices[0]?.message?.content);
-    if (mentorResponse) return mentorResponse;
+    if (mentorResponse.data) return mentorResponse.data;
 
     const correction = await client.chat.completions.create({
       model: groqModel,
@@ -57,14 +57,15 @@ export async function createMentorResponse(question, context) {
     });
 
     const correctedResponse = parseMentorResponse(correction.choices[0]?.message?.content);
-    if (!correctedResponse) throw new MentorServiceError("malformed-response");
-    return correctedResponse;
+    if (!correctedResponse.data) throw new MentorServiceError(correctedResponse.kind);
+    return correctedResponse.data;
   } catch (error) {
     if (error instanceof MentorServiceError) throw error;
     if (error instanceof RateLimitError || error?.status === 429) throw new MentorServiceError("rate-limit");
     if (error instanceof AuthenticationError || error instanceof PermissionDeniedError || error?.status === 401 || error?.status === 403) throw new MentorServiceError("authentication");
     if (error instanceof NotFoundError || error?.status === 404) throw new MentorServiceError("model-unavailable");
-    if (error instanceof APIConnectionTimeoutError || error instanceof APIConnectionError || error instanceof APIError) throw new MentorServiceError("upstream");
+    if (error instanceof APIConnectionTimeoutError) throw new MentorServiceError("request-timeout");
+    if (error instanceof APIConnectionError || error instanceof APIError) throw new MentorServiceError("upstream");
     throw new MentorServiceError("unexpected");
   }
 }

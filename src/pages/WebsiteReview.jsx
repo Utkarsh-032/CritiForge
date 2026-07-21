@@ -5,7 +5,7 @@ import LoadingState from "../components/reports/LoadingState";
 import PageHeader from "../components/reports/PageHeader";
 import WebsiteReviewReport from "../components/reports/WebsiteReviewReport";
 import EmptyState from "../components/reports/EmptyState";
-import { reviewWebsite } from "../services/api";
+import { getApiErrorMessage, reviewWebsite } from "../services/api";
 import { saveReviewHistory } from "../services/reviewHistory";
 
 const loadingMessages = ["Opening website", "Reading page structure", "Capturing visual preview", "Running AI analysis", "Building report"];
@@ -52,7 +52,7 @@ export default function WebsiteReview() {
       saveReviewHistory({ type: "website", title: domain || "Website Review", summary: data.summary || "Website review completed.", score: data.overallScore, route: "/website-review", metadata: { domain } });
       setReport(data);
     } catch (requestError) {
-      setError(requestError.response?.data?.error || "We could not create the website review. Confirm the backend is running and retry.");
+      setError(getApiErrorMessage(requestError, "We could not create the website review. Confirm the backend is running and retry."));
     } finally {
       setLoading(false);
     }

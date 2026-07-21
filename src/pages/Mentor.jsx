@@ -5,7 +5,7 @@ import LoadingState from "../components/reports/LoadingState";
 import MentorReport from "../components/reports/MentorReport";
 import PageHeader from "../components/reports/PageHeader";
 import EmptyState from "../components/reports/EmptyState";
-import { askMentor } from "../services/api";
+import { askMentor, getApiErrorMessage } from "../services/api";
 import { saveReviewHistory } from "../services/reviewHistory";
 
 export default function Mentor() {
@@ -32,7 +32,7 @@ export default function Mentor() {
       setAnswer(data);
     } catch (requestError) {
       const status = requestError.response?.status;
-      setError(requestError.response?.data?.error || "We could not prepare your mentor guidance. Confirm the backend is running and retry.");
+      setError(getApiErrorMessage(requestError, "We could not prepare your mentor guidance. Confirm the backend is running and retry."));
       setRetryable([429, 502, 503].includes(status));
     } finally {
       setLoading(false);

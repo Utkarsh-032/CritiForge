@@ -3,9 +3,14 @@ import { codeReviewRequestSchema } from "../../schemas/codeReviewSchema.js";
 import { createWebsiteReview, WebsiteReviewServiceError } from "../../services/websiteReviewService.js";
 import { websiteReviewRequestSchema } from "../../schemas/websiteReviewSchema.js";
 
+function sendError(response, status, type, message) {
+  response.locals.providerErrorCode = type;
+  return response.status(status).json({ error: { type, message } });
+}
+
 export async function websiteReview(request, response) {
   const parsedRequest = websiteReviewRequestSchema.safeParse(request.body);
-  if (!parsedRequest.success) return response.status(400).json({ error: "A valid website URL of at most 2048 characters is required." });
+  if (!parsedRequest.success) return sendError(response, 400, "invalid_request", "A valid website URL of at most 2048 characters is required.");
   try {
     return response.status(200).json(await createWebsiteReview(parsedRequest.data.url, parsedRequest.data.force));
   } catch (error) {
@@ -25,12 +30,14 @@ export async function websiteReview(request, response) {
         vision_model_unavailable: [502, "The configured website vision model is unavailable or does not support images. Please try again later."],
         upstream: [502, "Website review is temporarily unavailable. Please retry."],
         "malformed-response": [502, "Website review returned an invalid response. Please retry."],
+        validation: [502, "Website review response did not match the expected report format. Please retry."],
+        "request-timeout": [504, "Website review timed out. Please retry."],
         unexpected: [500, "Unable to create the website review. Please try again later."],
       };
       const [status, message] = responses[error.kind] || responses.unexpected;
-      return response.status(status).json({ error: message });
+      return sendError(response, status, error.kind, message);
     }
-    return response.status(500).json({ error: "Unable to create the website review. Please try again later." });
+    return sendError(response, 500, "unexpected_server_error", "Unable to create the website review. Please try again later.");
   }
 }
 export async function codeReview(request, response) {
@@ -38,11 +45,11 @@ export async function codeReview(request, response) {
 
   if (!parsedRequest.success) {
     const { language, code } = request.body || {};
-    if (!["html", "css", "javascript"].includes(language)) return response.status(400).json({ error: "Language must be html, css, or javascript." });
-    if (typeof code !== "string") return response.status(400).json({ error: "Code must be a string." });
-    if (!code.trim()) return response.status(400).json({ error: "Code cannot be empty." });
-    if (code.trim().length > 20000) return response.status(400).json({ error: "Code must not exceed 20000 characters." });
-    return response.status(400).json({ error: "Invalid code review request." });
+    if (!["html", "css", "javascript"].includes(language)) return sendError(response, 400, "invalid_request", "Language must be html, css, or javascript.");
+    if (typeof code !== "string") return sendError(response, 400, "invalid_request", "Code must be a string.");
+    if (!code.trim()) return sendError(response, 400, "invalid_request", "Code cannot be empty.");
+    if (code.trim().length > 20000) return sendError(response, 400, "invalid_request", "Code must not exceed 20000 characters.");
+    return sendError(response, 400, "invalid_request", "Invalid code review request.");
   }
 
   try {
@@ -56,12 +63,14 @@ export async function codeReview(request, response) {
         "model-unavailable": [502, "The configured Groq model is unavailable or missing. Please try again later."],
         upstream: [502, "Code review service is temporarily unavailable. Please retry."],
         "malformed-response": [502, "Code review service returned an invalid response. Please retry."],
+        validation: [502, "Code review response did not match the expected report format. Please retry."],
+        "request-timeout": [504, "Code review timed out. Please retry."],
         unexpected: [500, "Unable to create the code review. Please try again later."],
       };
       const [status, message] = responses[error.kind] || responses.unexpected;
-      return response.status(status).json({ error: message });
+      return sendError(response, status, error.kind, message);
     }
 
-    return response.status(500).json({ error: "Unable to create the code review. Please try again later." });
+    return sendError(response, 500, "unexpected_server_error", "Unable to create the code review. Please try again later.");
   }
 }

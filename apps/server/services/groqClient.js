@@ -21,7 +21,7 @@ export function getGroqClient() {
 
 export function getGroqConfigurationStatus() {
   return {
-    groqConfigured: Boolean(apiKey),
-    groqModel: groqModel || null,
+    configured: Boolean(apiKey),
+    modelConfigured: Boolean(groqModel),
   };
 }
