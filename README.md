@@ -183,7 +183,7 @@ I reviewed, tested, and understood Codex-generated changes before including them
 
 - Live application: https://critiforge.vercel.app/
 - Backend health endpoint: https://critiforge.onrender.com/api/health
-- Demo video: https://youtube.com/watch?v=YOUR_VIDEO_ID
+- Demo video: https://www.youtube.com/watch?v=k_fmlAzIAh4
 
 ## Testing the Live Application
 
