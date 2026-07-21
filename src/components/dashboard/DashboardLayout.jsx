@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
@@ -9,6 +8,8 @@ export default function DashboardLayout({ children, title = "Dashboard" }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const mainRef = useRef(null);
   const location = useLocation();
+  const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);
+  const toggleSidebar = useCallback(() => setIsSidebarOpen((open) => !open), []);
 
   useEffect(() => {
     document.title = `${title} | CritiForge`;
@@ -20,9 +21,9 @@ export default function DashboardLayout({ children, title = "Dashboard" }) {
 
   return (
     <div className="min-h-screen bg-[#050507] text-white">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
       <div className="lg:pl-72">
-        <Topbar title={title} isMenuOpen={isSidebarOpen} onMenuToggle={() => setIsSidebarOpen((open) => !open)} />
+        <Topbar title={title} isMenuOpen={isSidebarOpen} onMenuToggle={toggleSidebar} />
         <main ref={mainRef} tabIndex={-1} aria-label={`${title} content`} className="mx-auto w-full max-w-7xl px-5 py-8 outline-none sm:px-8 lg:px-10 lg:py-10"><PageTransition>{children}</PageTransition></main>
       </div>
     </div>

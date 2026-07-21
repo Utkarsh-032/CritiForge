@@ -46,7 +46,7 @@ function normalizeInput(type, input) {
   return { question: boundedText(input.question, 3000), contextPreview: boundedText(input.contextPreview, 1500) };
 }
 
-function normalizeItem(item, index = 0) {
+function normalizeItem(item, index = 0, reportIsSanitized = false) {
   if (!item || typeof item !== "object") return null;
   const type = ["website", "code", "mentor"].includes(item.type) ? item.type : null;
   if (!type) return null;
@@ -60,7 +60,7 @@ function normalizeItem(item, index = 0) {
     summary: boundedText(item.summary, 5000),
     route: ROUTES[type],
     input: normalizeInput(type, item.input),
-    report: item.report && typeof item.report === "object" ? safeReport(item.report) : null,
+    report: item.report && typeof item.report === "object" && !Array.isArray(item.report) ? (reportIsSanitized ? item.report : safeReport(item.report)) : null,
   };
 }
 
@@ -68,8 +68,9 @@ function parseStored(raw) {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
+    const isCurrentVersion = !Array.isArray(parsed) && parsed?.version === STORAGE_VERSION;
     const items = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.items) ? parsed.items : null;
-    return items?.map(normalizeItem).filter(Boolean) || null;
+    return items?.map((item, index) => normalizeItem(item, index, isCurrentVersion)).filter(Boolean) || null;
   } catch {
     return null;
   }
@@ -145,7 +146,7 @@ export const subscribeToReviewHistory = (listener) => {
 
 export const saveReviewHistory = (entry) => {
   try {
-    const normalized = normalizeItem(entry);
+    const normalized = normalizeItem(entry, 0, true);
     if (!normalized) return getReviewHistory();
     const saved = write([normalized, ...read()]);
     if (saved) notify();
