@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import ApplicationLayout from "./components/dashboard/ApplicationLayout";
 import Layout from "./components/layout/Layout";
 import CodeReview from "./pages/CodeReview";
 import Dashboard from "./pages/Dashboard";
@@ -10,10 +11,12 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}><Route path="/" element={<Home />} /></Route>
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/website-review" element={<WebsiteReview />} />
-      <Route path="/code-review" element={<CodeReview />} />
-      <Route path="/ai-mentor" element={<Mentor />} />
+      <Route element={<ApplicationLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/website-review" element={<WebsiteReview />} />
+        <Route path="/code-review" element={<CodeReview />} />
+        <Route path="/ai-mentor" element={<Mentor />} />
+      </Route>
     </Routes>
   );
 }

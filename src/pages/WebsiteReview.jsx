@@ -1,6 +1,5 @@
 import { Globe2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import DashboardLayout from "../components/dashboard/DashboardLayout";
 import ErrorMessage from "../components/reports/ErrorMessage";
 import LoadingState from "../components/reports/LoadingState";
 import PageHeader from "../components/reports/PageHeader";
@@ -65,8 +64,7 @@ export default function WebsiteReview() {
   }
 
   return (
-    <DashboardLayout title="Website Review">
-      <div className="space-y-8">
+    <div className="space-y-8">
         <PageHeader eyebrow="Website intelligence" title="Review a website with clarity" description="Get an evidence-based AI assessment for visual design, accessibility, UX, and Performance Readiness." />
 
         <form onSubmit={handleSubmit} className="rounded-[28px] border border-white/10 bg-[#121b2e] p-5 shadow-[0_16px_48px_rgba(0,0,0,0.2)] sm:p-6">
@@ -88,6 +86,5 @@ export default function WebsiteReview() {
         {!loading && !report && !error && <EmptyState title="See your website through a sharper lens" description="Review UI, UX, accessibility, content, responsiveness, and performance readiness from a public URL." hint="Try https://example.com to see the flow." />}
         {report && <><WebsiteReviewReport report={report} />{report.cached && <button type="button" onClick={() => submitWebsiteReview(true)} className="rounded-xl border border-violet-400/30 px-4 py-2 text-sm font-semibold text-violet-100 hover:bg-violet-400/10">Force Reanalyze</button>}</>}
       </div>
-    </DashboardLayout>
   );
 }
