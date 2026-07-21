@@ -113,27 +113,27 @@ The frontend is served by Vite and the API defaults to `http://localhost:3001/ap
 
 ## Environment Variables
 
-| Variable | Used by | Purpose |
-| --- | --- | --- |
-| `VITE_API_BASE_URL` | Frontend | Base URL for the API, for example `http://localhost:3001/api`. |
-| `GROQ_API_KEY` | Backend | Credentials for Code Review and AI Mentor. |
-| `GROQ_MODEL` | Backend | Groq text model used by Code Review and AI Mentor. |
-| `GEMINI_API_KEY` | Backend | Credentials for Website Review. |
-| `GEMINI_VISION_MODEL` | Backend | Gemini model used for screenshot-based Website Review. |
-| `FRONTEND_ORIGIN` | Backend | Allowed frontend origin(s) for CORS. |
-| `NODE_ENV` | Backend | Environment mode, such as `development` or `production`. |
+| Variable              | Used by  | Purpose                                                        |
+| --------------------- | -------- | -------------------------------------------------------------- |
+| `VITE_API_BASE_URL`   | Frontend | Base URL for the API, for example `http://localhost:3001/api`. |
+| `GROQ_API_KEY`        | Backend  | Credentials for Code Review and AI Mentor.                     |
+| `GROQ_MODEL`          | Backend  | Groq text model used by Code Review and AI Mentor.             |
+| `GEMINI_API_KEY`      | Backend  | Credentials for Website Review.                                |
+| `GEMINI_VISION_MODEL` | Backend  | Gemini model used for screenshot-based Website Review.         |
+| `FRONTEND_ORIGIN`     | Backend  | Allowed frontend origin(s) for CORS.                           |
+| `NODE_ENV`            | Backend  | Environment mode, such as `development` or `production`.       |
 
 Never expose API keys in frontend environment variables or commit real `.env` files.
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-| --- | --- | --- |
-| `GET` | `/api/health` | Basic API health check. |
-| `GET` | `/api/ai/status` | Safe provider/model configuration status; never returns keys. |
+| Method | Endpoint               | Description                                                                                                       |
+| ------ | ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/api/health`          | Basic API health check.                                                                                           |
+| `GET`  | `/api/ai/status`       | Safe provider/model configuration status; never returns keys.                                                     |
 | `POST` | `/api/reviews/website` | Creates a Website Review from `{ "url": "https://..." }`. Optional `force` bypasses the short-lived review cache. |
-| `POST` | `/api/reviews/code` | Creates a Code Review from `language` and `code`. |
-| `POST` | `/api/mentor` | Creates an AI Mentor report from `question` and optional `context`. |
+| `POST` | `/api/reviews/code`    | Creates a Code Review from `language` and `code`.                                                                 |
+| `POST` | `/api/mentor`          | Creates an AI Mentor report from `question` and optional `context`.                                               |
 
 ## Security and Reliability
 
@@ -191,3 +191,7 @@ npm run build
 cd apps/server
 node --check src/server.js
 ```
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
